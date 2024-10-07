@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+calculator-service:
+  url: http://localhost:8080/api/calculator
+
+
+opentracing:
+  jaeger:
+    enable: true
+    service-name: math-client
+    udp-sender:
+      host: localhost
+      port: 6831
+    log-spans: true
