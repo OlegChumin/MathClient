@@ -14,10 +14,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TracingAspect {
 
-    @Autowired
-    private Tracer tracer;
+    private final Tracer tracer;
 
-    @Around("@annotation(org.springframework.web.bind.annotation.RequestMapping) || @annotation(org.springframework.web.bind.annotation.GetMapping)")
+    public TracingAspect(Tracer tracer) {
+        this.tracer = tracer;
+    }
+
+    @Around("@within(org.springframework.web.bind.annotation.RestController)")
     public Object traceMethod(ProceedingJoinPoint pjp) throws Throwable {
         String methodName = pjp.getSignature().getName();
 

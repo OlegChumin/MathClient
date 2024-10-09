@@ -2,11 +2,10 @@ package org.example.mathclient.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor
 @Data
-public class OperationRequest {
+public class OperationRequestDTO {
     private double a;
     private double b;
 }
