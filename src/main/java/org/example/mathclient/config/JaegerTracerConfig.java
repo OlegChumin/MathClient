@@ -2,6 +2,7 @@ package org.example.mathclient.config;
 
 import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingRestTemplateInterceptor;
+import org.example.mathclient.aspect.CustomTracingRestTemplateInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +21,7 @@ public class JaegerTracerConfig {
     @Bean
     public RestTemplate restTemplate(Tracer tracer) {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getInterceptors().add(new TracingRestTemplateInterceptor(tracer));
+        restTemplate.getInterceptors().add(new CustomTracingRestTemplateInterceptor(tracer));
         return restTemplate;
     }
 }
