@@ -6,6 +6,7 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapAdapter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -40,7 +41,7 @@ public class JaegerHttpTracingExtractorNew {
             // Логируем все заголовки
             log.info("Received header: {} -> {}", headerName, headerValue);
 
-            // Изменяем имя заголовка на кастомный, если это не uber-trace-id
+            // Изменяем имя заголовка на кастомный, если это uber-trace-id
             if ("uber-trace-id".equals(headerName)) {
                 headers.put("jaeger_traceId", headerValue);
                 log.info("Renamed header uber-trace-id -> jaeger_traceId");
