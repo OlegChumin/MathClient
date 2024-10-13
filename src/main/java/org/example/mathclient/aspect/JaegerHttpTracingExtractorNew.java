@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,37 +28,31 @@ public class JaegerHttpTracingExtractorNew {
         // Создаем карту для заголовков
         Map<String, String> headers = new HashMap<>();
 
-        // Извлекаем только те заголовки, которые нас интересуют
-        String jaegerTraceId = request.getHeader("jaeger_traceId");
-        String uberTraceId = request.getHeader("uber-trace-id");
+        // HttpServletRequest.getHeaderNames() и другие методы в некоторых старых API возвращают именно Enumeration,
+        // потому что они были написаны до появления Iterator
+        //Iterator<String> headerNamesIterator = Collections.enumeration(headerNames).asIterator();
+        Enumeration<String> headerNames = request.getHeaderNames();
 
-//        // Логируем и добавляем в карту только если заголовки присутствуют
-//        if (jaegerTraceId != null) {
-//            headers.put("jaeger_traceId", jaegerTraceId);
-//            log.info("Found jaeger_traceId: {}", jaegerTraceId);
-//        }
+        // Извлекаем все заголовки из HTTP-запроса
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
 
-        if (uberTraceId != null) {
-            //headers.put("jaeger_traceId", uberTraceId);  // Переименовываем uber-trace-id в jaeger_traceId
-            headers.put("uber-trace-id", uberTraceId);  // Переименовываем uber-trace-id в jaeger_traceId
-            log.info("Found uber-trace-id, renamed to jaeger_traceId: {}", uberTraceId);
+            // Логируем все заголовки
+            log.info("Received header: {} -> {}", headerName, headerValue);
+
+            // Изменяем имя заголовка на кастомный, если это uber-trace-id
+            if ("uber-trace-id".equals(headerName)) {
+                headers.put("jaeger_traceId", headerValue);
+                log.info("Renamed header uber-trace-id -> jaeger_traceId");
+            } else {
+                headers.put(headerName, headerValue);
+            }
         }
 
-        // Логируем, если ни один из заголовков не найден
-        if (headers.isEmpty()) {
-            log.warn("No tracing headers found in the request");
-        }
 
-        // Извлечение контекста трассировки из заголовков
-        SpanContext spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
-
-        // Логируем результат извлечения SpanContext
-        if (spanContext != null) {
-            log.info("Extracted SpanContext: traceId = {}, spanId = {}", spanContext.toTraceId(), spanContext.toSpanId());
-        } else {
-            log.warn("Failed to extract SpanContext from headers");
-        }
-
-        return spanContext;
+        // Извлечение контекста трассировки из заголовков с помощью TextMapAdapter implements TextMap
+        // В TextMapAdapter все операции производятся через ключ-значение, без использования итераторов.
+        return tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(headers));
     }
 }
