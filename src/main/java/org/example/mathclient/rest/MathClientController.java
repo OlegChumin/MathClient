@@ -30,4 +30,40 @@ public class MathClientController {
         log.info("Received response: {}", result);
         return result;
     }
+
+    @GetMapping("/subtract")
+    public String subtract(@RequestParam double a, @RequestParam double b) {
+        String url = "http://localhost:8080/api/calculator/subtract";
+        OperationRequestDTO request = new OperationRequestDTO(a, b);
+
+        // Выполняем HTTP-запрос с трассировкой через RestTemplate
+        String result = restTemplate.postForObject(url, request, String.class);
+
+        log.info("Received response: {}", result);
+        return result;
+    }
+
+    @GetMapping("/multiply")
+    public String multiply(@RequestParam double a, @RequestParam double b) {
+        String url = "http://localhost:8080/api/calculator/multiply";
+        OperationRequestDTO request = new OperationRequestDTO(a, b);
+
+        // Выполняем HTTP-запрос с трассировкой через RestTemplate
+        String result = restTemplate.postForObject(url, request, String.class);
+
+        log.info("Received response: {}", result);
+        return result;
+    }
+
+    @GetMapping("/divide")
+    public String divide(@RequestParam double a, @RequestParam double b) {
+        String url = "http://localhost:8080/api/calculator/divide";
+        OperationRequestDTO request = new OperationRequestDTO(a, b);
+
+        // Выполняем HTTP-запрос с трассировкой через RestTemplate
+        String result = restTemplate.postForObject(url, request, String.class);
+
+        log.info("Received response: {}", result);
+        return result;
+    }
 }
