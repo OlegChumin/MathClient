@@ -33,7 +33,8 @@ public class JaegerTracingAspect {
     private final JaegerHttpTracingExtractorNew httpTracingExtractor;
 
     @Autowired
-    public JaegerTracingAspect(@Qualifier("customJaegerTracer") Tracer tracer, @Qualifier("httpTracingExtractor") JaegerHttpTracingExtractorNew httpTracingExtractor) {
+    public JaegerTracingAspect(@Qualifier("customJaegerTracer") Tracer tracer,
+                               @Qualifier("httpTracingExtractor") JaegerHttpTracingExtractorNew httpTracingExtractor) {
         this.tracer = tracer;
         this.httpTracingExtractor = httpTracingExtractor;
     }
@@ -41,6 +42,7 @@ public class JaegerTracingAspect {
     @Around("@within(org.springframework.web.bind.annotation.RestController)")
     public Object traceMethod(ProceedingJoinPoint pjp) throws Throwable {
         log.debug("TracingEnabled {}", tracingEnabled);
+
         if (!tracingEnabled) {
             return pjp.proceed();
         }
@@ -65,14 +67,20 @@ public class JaegerTracingAspect {
         Span span = tracer.buildSpan(methodName).start();
         log.debug("Started tracing method: {} without extracted context", methodName);
 
-        // Логируем начало выполнения в спан
+        // Логируем начало выполнения в спан -> все последующие действия, происходящие в этом потоке
+        // (например, вызовы к другим сервисам, внутренние методы и т.д.), будут ассоциированы с этим активным Span.
         span.log("Starting method execution");
 
 
         // Активируем спан с помощью Scope
+        /**
+         * Переменная scope необходима для активации и деактивации Span, несмотря на то, что она не используется
+         * явно в коде. Она управляет временем жизни Span и автоматически закрывает его по завершению метода.
+         */
         try (Scope scope = tracer.scopeManager().activate(span)) {
             return pjp.proceed();
-        } catch (Throwable throwable) {
+        } // scope.close() вызывается автоматически, когда выполнение блока try завершено
+        catch (Throwable throwable) {
             span.setTag("error", true);
             Map<String, Object> logMap = new HashMap<>();
             logMap.put("event", "error");
@@ -81,7 +89,7 @@ public class JaegerTracingAspect {
             throw throwable;
         } finally {
             span.log("Method execution finished");
-            span.finish();
+            span.finish(); // Вручную завершаем спан
             log.debug("Finished tracing method: {} with Trace ID: {}", methodName, span.context().toTraceId());
         }
     }
