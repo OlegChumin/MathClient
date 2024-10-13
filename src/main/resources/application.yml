@@ -13,3 +13,10 @@ opentracing:
       host: localhost
       port: 6831
     log-spans: true
+
+feature-flag.ccc-jaeger.tracing.enabled: true
+
+logging:
+  level:
+    org.example.jaeger_testing.aspect: DEBUG  # Включаем уровень DEBUG для пакета с аспектом
+    root: INFO  # Общий уровень логирования по умолчанию для всего приложения

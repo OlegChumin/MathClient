@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -22,7 +23,7 @@ public class TracingAspect {
     private final Tracer tracer;
     private final HttpTracingExtractorNew httpTracingExtractor;
 
-    public TracingAspect(Tracer tracer, HttpTracingExtractorNew httpTracingExtractor) {
+    public TracingAspect(@Qualifier("customJaegerTracer") Tracer tracer, HttpTracingExtractorNew httpTracingExtractor) {
         this.tracer = tracer;
         this.httpTracingExtractor = httpTracingExtractor;
     }

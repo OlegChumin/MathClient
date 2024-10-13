@@ -13,28 +13,32 @@ java {
     }
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    //REST API
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //SOAP
+    //implementation 'org.springframework.boot:spring-boot-starter-web-services'
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     //Jaeger
-    implementation 'io.opentracing.contrib:opentracing-spring-jaeger-cloud-starter:3.3.1'
     implementation 'io.opentracing.contrib:opentracing-spring-jaeger-starter:3.3.1'
-    implementation 'io.micrometer:micrometer-tracing:1.3.4'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 
 }
 

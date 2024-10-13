@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * TracingRestTemplateInterceptor не предоставляет возможности для изменения имени заголовков "из коробки"
+ */
 @Slf4j
 public class CustomTracingRestTemplateInterceptor implements ClientHttpRequestInterceptor {
 
@@ -31,9 +34,10 @@ public class CustomTracingRestTemplateInterceptor implements ClientHttpRequestIn
                 @Override
                 public void put(String key, String value) {
                     if ("uber-trace-id".equals(key)) {
-                        key = "jaeger_traceId";  // Переименовываем заголовок
+                        key = "jaeger_traceId"; // Переименовываем заголовок
                     }
                     request.getHeaders().add(key, value);
+                    log.info("Injected header: {} -> {}", key, value); // Логируем инжектированные заголовки
                 }
 
                 @Override
@@ -45,6 +49,8 @@ public class CustomTracingRestTemplateInterceptor implements ClientHttpRequestIn
             // Логируем предупреждение, если активного спана нет
             log.warn("No active span found. Cannot inject trace context.");
         }
+
+        log.info("Request Headers after injection: {}", request.getHeaders()); // Логируем заголовки после инжекции
 
         // Выполняем запрос
         return execution.execute(request, body);
