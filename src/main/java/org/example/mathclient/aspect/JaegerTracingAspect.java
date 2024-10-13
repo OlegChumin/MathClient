@@ -2,6 +2,7 @@ package org.example.mathclient.aspect;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -57,20 +58,32 @@ public class JaegerTracingAspect {
             request = ((ServletRequestAttributes) requestAttributes).getRequest();
         }
 
+        //нужен для передачи контекста трассировки между спанами
+        SpanContext parentContext = null;
+
         // Логирование заголовков
         if (request != null) {
             logRelevantRequestHeaders(request);
+
+            // Извлекаем контекст из заголовков
+            parentContext = httpTracingExtractor.extract(request);
         } else {
             log.warn("HttpServletRequest not available for method: {}", methodName);
         }
 
-        Span span = tracer.buildSpan(methodName).start();
-        log.debug("Started tracing method: {} without extracted context", methodName);
+        // Если контекст был извлечен, создаем дочерний спан
+        Span span;
+        if (parentContext != null) {
+            span = tracer.buildSpan(methodName).asChildOf(parentContext).start();
+            log.debug("Started tracing method: {} with extracted context", methodName);
+        } else {
+            span = tracer.buildSpan(methodName).start();
+            log.debug("Started tracing method: {} without extracted context", methodName);
+        }
 
         // Логируем начало выполнения в спан -> все последующие действия, происходящие в этом потоке
         // (например, вызовы к другим сервисам, внутренние методы и т.д.), будут ассоциированы с этим активным Span.
         span.log("Starting method execution");
-
 
         // Активируем спан с помощью Scope
         /**
