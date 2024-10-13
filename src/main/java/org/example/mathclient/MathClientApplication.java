@@ -24,10 +24,10 @@ public class MathClientApplication {
     // Инъекция значения из конфигурационного файла, если параметр не найден, будет "default-service-name"
     @Value("${opentracing.jaeger.service-name:default-service-name}")
     private String serviceName;
-
     {
         log.info(serviceName);
     }
+
 
     @Bean(name = "customJaegerTracer")
     public Tracer jaegerTracer() {
