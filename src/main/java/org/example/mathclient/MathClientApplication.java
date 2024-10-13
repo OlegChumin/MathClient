@@ -1,6 +1,7 @@
 package org.example.mathclient;
 
 import io.opentracing.Tracer;
+import lombok.extern.slf4j.Slf4j;
 import org.example.mathclient.aspect.CustomTracingRestTemplateInterceptor;
 import org.example.mathclient.aspect.HttpTracingExtractorNew;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class MathClientApplication {
@@ -22,6 +24,10 @@ public class MathClientApplication {
     // Инъекция значения из конфигурационного файла, если параметр не найден, будет "default-service-name"
     @Value("${opentracing.jaeger.service-name:default-service-name}")
     private String serviceName;
+
+    {
+        log.info(serviceName);
+    }
 
     @Bean(name = "customJaegerTracer")
     public Tracer jaegerTracer() {
