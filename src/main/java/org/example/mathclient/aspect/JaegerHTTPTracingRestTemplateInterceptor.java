@@ -29,7 +29,6 @@ public class JaegerHTTPTracingRestTemplateInterceptor implements ClientHttpReque
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         log.info("Starting HTTP request: {} {}", request.getMethod(), request.getURI());
-        log.info("Request Headers before sending: {}", request.getHeaders());
 
         Span activeSpan = tracer.activeSpan();
         if (activeSpan != null) {
@@ -54,10 +53,14 @@ public class JaegerHTTPTracingRestTemplateInterceptor implements ClientHttpReque
             log.warn("No active span found. Cannot inject trace context.");
         }
 
-        log.info("Request Headers after injection: {}", request.getHeaders()); // Логируем заголовки после инжекции
+        // Логируем только релевантные заголовки
+        String jaegerTraceId = request.getHeaders().getFirst("jaeger_traceId");
+        String uberTraceId = request.getHeaders().getFirst("uber-trace-id");
 
-//        ClientHttpResponse response = execution.execute(request, body);
-//        log.debug("Completed HTTP request: {} {}", request.getMethod(), request.getURI());
+        log.info("Header: jaeger_traceId = {}",
+                jaegerTraceId != null ? jaegerTraceId : "jaeger_traceId not found");
+        log.info("Header: uber-trace-id = {}",
+                uberTraceId != null ? uberTraceId : "uber-trace-id not found");
 
         // Выполняем запрос
         return execution.execute(request, body);
