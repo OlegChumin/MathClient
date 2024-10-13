@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class HttpTracingExtractorNew {
+public class JaegerHttpTracingExtractorNew {
 
     private final Tracer tracer;
 
     @Autowired
-    public HttpTracingExtractorNew(@Qualifier("customJaegerTracer") Tracer tracer) {
+    public JaegerHttpTracingExtractorNew(@Qualifier("customJaegerTracer") Tracer tracer) {
         this.tracer = tracer;
     }
 
